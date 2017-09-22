@@ -1,0 +1,30 @@
+{
+  "name": "pvv/DangerousScheduler",
+  "version": "0.3",
+  "autoload": {
+    "psr-4": {
+      "DangerousScheduler\\": [
+        "src/"
+      ]
+    }
+  },
+  "require": {
+  },
+  "scripts": {
+    "test": [
+      "phpunit"
+    ]
+  },
+  "config": {
+    "secure-http": false
+  },
+  "repositories": [
+    {
+      "packagist": false
+    },
+    {
+      "type": "composer",
+      "url": "http://packagist.org/"
+    }
+  ]
+}
