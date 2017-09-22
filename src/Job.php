@@ -55,9 +55,4 @@ abstract class Job implements abstraction\Job
         }
     }
 
-    public function __destruct()
-    {
-        echo 'TODO: Implement __destruct() method.'.PHP_EOL;
-    }
-
 }
