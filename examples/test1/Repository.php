@@ -21,6 +21,7 @@ class Repository implements \DangerousScheduler\abstraction\Repository
             'arg1' => 1,
             'arg2' => 2,
         ];
+
         return $task;
     }
 
@@ -33,6 +34,6 @@ class Repository implements \DangerousScheduler\abstraction\Repository
      */
     public function putTask($task)
     {
-      return true;
+        return true;
     }
 }
