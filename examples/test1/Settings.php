@@ -11,4 +11,6 @@ class Settings extends \DangerousScheduler\ServerSettings
     public $repositoryClassName = Repository::class;
 
     public $treads = 10;
+
+    public $log = true;
 }

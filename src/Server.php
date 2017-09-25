@@ -26,42 +26,7 @@ final class Server implements abstraction\Server
     final private function process()
     {
         if (!function_exists('pcntl_fork')) {
-            die('PCNTL functions not available on this PHP installation');
-        }
-
-        for ($x = 0; $x < ($this->settings->treads - count($this->childs)); $x++) {
-            switch ($pid = pcntl_fork()) {
-                case -1:
-                    // @fail
-                    throw new \Exception('Fork failed');
-                    break;
-
-                case 0:
-                    // @child: Include() misbehaving code here
-                    print "FORK: Master Job #{$x} preparing to nuke..." . PHP_EOL;
-                    if (!is_subclass_of($this->settings->repositoryClassName, Repository::class)) {
-                        throw new \Exception('Repository Class must implements ' . Repository::class);
-                    }
-                    $class = $this->settings->repositoryClassName;
-                    $repository = new $class();
-                    $task = $repository->getTask();
-
-                    if (!is_subclass_of($task->name, Job::class)) {
-                        throw new \Exception('Job Class must implements ' . Job::class);
-                    }
-                    $job = new $task->name();
-
-                    $job->run();
-                    // Not need continue you are done
-                    die('Job Done!' . PHP_EOL);
-                    break;
-
-                default:
-                    // @parent
-                    print "FORK: Parent, letting the child run amok..." . PHP_EOL;
-                    $this->childs[] = $pid;
-                    break;
-            }
+            throw new \Exception('PCNTL functions not available on this PHP installation');
         }
 
         foreach ($this->childs as $key => $pid) {
@@ -73,6 +38,52 @@ final class Server implements abstraction\Server
             }
         }
 
-        sleep(1);
+        for ($x = 1; $x < ($this->settings->treads - count($this->childs)); $x++) {
+            switch ($pid = pcntl_fork()) {
+                case -1:
+                    // @fail
+                    throw new \Exception('Fork failed');
+                    break;
+
+                case 0:
+                    // @child: Include() misbehaving code here
+                    $this->log("FORK: Master Job #{$x} preparing to nuke...");
+                    if (!is_subclass_of($this->settings->repositoryClassName, Repository::class)) {
+                        throw new \Exception('Repository Class must implements ' . Repository::class);
+                    }
+                    $class = $this->settings->repositoryClassName;
+                    $repository = new $class();
+                    $task = $repository->getTask();
+                    if ($task) {
+                        $class = $task->getName();
+                        if (!is_subclass_of($class, Job::class)) {
+                            throw new \Exception('Job Class must implements ' . Job::class);
+                        }
+                        $job = new $class($task->getArguments());
+                        $job->task = $task;
+                        $job->settings = $this->settings;
+                        $job->run();
+                    }
+                    // Not need continue you are done
+                    $this->log('Job Done!');
+                    die();
+                    break;
+
+                default:
+                    // @parent
+                    $this->log("FORK: Parent, letting the child run amok..." . PHP_EOL);
+                    $this->childs[] = $pid;
+                    break;
+            }
+        }
+
+        sleep(2);
+    }
+
+    public function log($message)
+    {
+        if ($this->settings->log) {
+            $this->settings->logClass::log($message);
+        }
     }
 }

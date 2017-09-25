@@ -3,8 +3,9 @@
 namespace DangerousScheduler\abstraction;
 
 
-abstract class Task
+interface Task
 {
-    public $name;
-    public $arguments;
+    public function getName();
+    public function getArguments();
+
 }

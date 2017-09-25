@@ -1,4 +1,5 @@
 <?php
+
 namespace DangerousScheduler;
 
 
@@ -18,7 +19,12 @@ class ServerSettings implements \DangerousScheduler\abstraction\ServerSettings
      */
     public $treads = 10;
 
-
+    /**
+     * Display log in stdout
+     * @var bool
+     */
+    public $log = true;
+    public $logClass = Log::class;
 
 
 }

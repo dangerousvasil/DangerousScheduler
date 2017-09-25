@@ -11,7 +11,8 @@ abstract class Job implements abstraction\Job
     /**
      * @var Task
      */
-    protected $task = null;
+    public $task     = null;
+    public $settings = null;
 
     public function __construct()
     {
@@ -23,19 +24,19 @@ abstract class Job implements abstraction\Job
         switch ($pid = pcntl_fork()) {
             case -1:
                 // @fail
-                die('Fork failed');
+                $this->log('Fork failed');
+                die();
                 break;
 
             case 0:
                 // @child: Include() misbehaving code here
-                print "FORK: Child Job " . __CLASS__ . " preparing to nuke...".PHP_EOL;
+                $this->log("FORK: Child Job " . get_class($this) . " preparing to nuke...");
                 $this->doJob();
                 break;
 
             default:
                 // @parent
-                print "FORK: Master Job, letting the child run amok...".PHP_EOL;
-
+                $this->log("FORK: Master Job, letting the child run amok...");
                 do {
                     $res = pcntl_waitpid($pid, $status, WNOHANG);
 
@@ -52,6 +53,13 @@ abstract class Job implements abstraction\Job
                     $this->rejectJob();
                 }
                 break;
+        }
+    }
+
+    public function log($message)
+    {
+        if ($this->settings->log) {
+            $this->settings->logClass::log($message);
         }
     }
 
